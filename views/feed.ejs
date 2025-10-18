@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Feed - Minecraft Social</title>
+  <link rel="stylesheet" href="/public/css/bedrock.css" />
+</head>
+<body class="bg">
+  <%- include('partials/nav') %>
+  <div class="container">
+    <div class="card">
+      <form class="composer" method="POST" action="/feed/create" enctype="multipart/form-data">
+        <textarea name="content" placeholder="Share your adventure..." maxlength="500"></textarea>
+        <div class="row">
+          <input type="file" name="image" accept="image/*" />
+          <button class="btn" type="submit">Post</button>
+        </div>
+      </form>
+    </div>
+
+    <% posts.forEach(p => { %>
+      <div class="card post">
+        <div class="post-header">
+          <img class="avatar" src="<%= p.avatar_path || '/public/css/steve.png' %>" alt="avatar" />
+          <div class="who">
+            <a href="/u/<%= p.username %>"><%= p.display_name %></a>
+            <div class="muted">@<%= p.username %></div>
+          </div>
+        </div>
+        <div class="content"><%= p.content %></div>
+        <% if (p.image_path) { %>
+          <img class="post-img" src="<%= p.image_path %>" alt="post image" />
+        <% } %>
+        <div class="actions">
+          <form method="POST" action="/feed/<%= p.id %>/<%= p.liked_by_me ? 'unlike' : 'like' %>">
+            <button class="btn <%= p.liked_by_me ? 'active' : '' %>" type="submit">❤ <%= p.like_count %></button>
+          </form>
+        </div>
+        <details class="comments">
+          <summary>Comments (<%= p.comment_count %>)</summary>
+          <form class="row" method="POST" action="/feed/<%= p.id %>/comment">
+            <input name="content" placeholder="Write a comment..." maxlength="300" />
+            <button class="btn" type="submit">Reply</button>
+          </form>
+        </details>
+      </div>
+    <% }) %>
+  </div>
+</body>
+</html>

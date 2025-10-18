@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login - Minecraft Social</title>
+  <link rel="stylesheet" href="/public/css/bedrock.css" />
+</head>
+<body class="bg">
+  <div class="container narrow">
+    <div class="card">
+      <h2>Login</h2>
+      <% if (typeof error !== 'undefined') { %>
+        <div class="alert"><%= error %></div>
+      <% } %>
+      <form method="POST" action="/login">
+        <label>Username</label>
+        <input name="username" required />
+        <label>Password</label>
+        <input type="password" name="password" required />
+        <button class="btn" type="submit">Login</button>
+      </form>
+      <div class="muted">No account? <a href="/signup">Sign up</a></div>
+    </div>
+  </div>
+</body>
+</html>

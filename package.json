@@ -1,0 +1,47 @@
+{
+  "name": "workspace",
+  "version": "1.0.0",
+  "description": "A Minecraft social network",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "lint": "eslint . --ext .js",
+    "format": "prettier --write .",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yussefini45/MINECRAFT.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Yussefini45/MINECRAFT/issues"
+  },
+  "homepage": "https://github.com/Yussefini45/MINECRAFT#readme",
+  "devDependencies": {
+    "eslint": "^9.38.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "nodemon": "^3.1.10",
+    "prettier": "^3.6.2"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "dayjs": "^1.11.18",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "express-session": "^1.18.2",
+    "helmet": "^8.1.0",
+    "method-override": "^3.0.0",
+    "multer": "^2.0.2",
+    "nanoid": "^5.1.6",
+    "sqlite3": "^5.1.7",
+    "uuid": "^13.0.0"
+  }
+}

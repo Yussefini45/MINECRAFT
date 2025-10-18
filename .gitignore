@@ -1,0 +1,27 @@
+# Node
+node_modules/
+.npm/
+
+# Env and logs
+.env
+*.log
+logs/
+
+# OS
+.DS_Store
+
+# Build artifacts
+coverage/
+dist/
+
+# SQLite DB
+/data/*.db
+/data/*.sqlite
+
+# Uploads (keep placeholder)
+/uploads/*
+!/uploads/.gitkeep
+
+# Editor
+.vscode/
+.idea/

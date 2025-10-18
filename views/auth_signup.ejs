@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sign Up - Minecraft Social</title>
+  <link rel="stylesheet" href="/public/css/bedrock.css" />
+</head>
+<body class="bg">
+  <div class="container narrow">
+    <div class="card">
+      <h2>Create Account</h2>
+      <% if (typeof error !== 'undefined') { %>
+        <div class="alert"><%= error %></div>
+      <% } %>
+      <form method="POST" action="/signup" enctype="multipart/form-data">
+        <label>Username</label>
+        <input name="username" required />
+        <label>Display name</label>
+        <input name="display_name" required />
+        <label>Password</label>
+        <input type="password" name="password" required />
+        <label>Avatar (optional)</label>
+        <input type="file" name="avatar" accept="image/*" />
+        <button class="btn" type="submit">Create Account</button>
+      </form>
+      <div class="muted">Already have an account? <a href="/login">Login</a></div>
+    </div>
+  </div>
+</body>
+</html>

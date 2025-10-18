@@ -1,0 +1,11 @@
+<nav class="nav">
+  <a class="brand" href="/feed">Minecraft Social</a>
+  <div class="spacer"></div>
+  <% if (currentUserId) { %>
+    <form method="POST" action="/logout">
+      <button class="btn ghost" type="submit">Logout</button>
+    </form>
+  <% } else { %>
+    <a class="btn ghost" href="/login">Login</a>
+  <% } %>
+</nav>
