@@ -10,6 +10,13 @@
   <%- include('partials/nav') %>
   <div class="container">
     <div class="card">
+      <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="tabs">
+          <a class="btn <%= (typeof tab !== 'undefined' && tab === 'following') ? '' : 'ghost' %>" href="/feed?tab=global">Global</a>
+          <a class="btn <%= (typeof tab !== 'undefined' && tab === 'following') ? 'ghost' : '' %>" href="/feed?tab=following">Following</a>
+        </div>
+        <div class="muted">Page <%= typeof page !== 'undefined' ? page : 1 %></div>
+      </div>
       <form class="composer" method="POST" action="/feed/create" enctype="multipart/form-data">
         <textarea name="content" placeholder="Share your adventure..." maxlength="500"></textarea>
         <div class="row">
@@ -18,6 +25,25 @@
         </div>
       </form>
     </div>
+
+    <% if (Array.isArray(suggestions) && suggestions.length) { %>
+      <div class="card">
+        <h3>Who to follow</h3>
+        <% suggestions.forEach(s => { %>
+          <div class="row" style="align-items:center;margin:6px 0">
+            <img class="avatar" src="<%= s.avatar_path || '/public/css/steve.png' %>" />
+            <div style="margin-left:8px">
+              <div><a href="/u/<%= s.username %>"><%= s.display_name %></a></div>
+              <div class="muted">@<%= s.username %></div>
+            </div>
+            <div class="spacer"></div>
+            <form method="POST" action="/u/<%= s.username %>/follow">
+              <button class="btn" type="submit">Follow</button>
+            </form>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
 
     <% posts.forEach(p => { %>
       <div class="card post">
@@ -28,7 +54,12 @@
             <div class="muted">@<%= p.username %></div>
           </div>
         </div>
-        <div class="content"><%= p.content %></div>
+        <div class="content">
+          <%- p.content %>
+          <div class="muted" style="margin-top:6px">
+            <a href="/feed/<%= p.id %>">View</a>
+          </div>
+        </div>
         <% if (p.image_path) { %>
           <img class="post-img" src="<%= p.image_path %>" alt="post image" />
         <% } %>
@@ -55,7 +86,12 @@
                   <img class="avatar" src="<%= c.avatar_path || '/public/css/steve.png' %>" />
                   <div>
                     <div style="font-weight:800"><a href="/u/<%= c.username %>">@<%= c.username %></a></div>
-                    <div class="muted"><%= c.content %></div>
+                    <div class="muted"><%- c.content %></div>
+                    <% if (currentUsername === c.username) { %>
+                      <form method="POST" action="/feed/<%= p.id %>/comment/<%= c.id %>/delete" style="margin-top:4px">
+                        <button class="btn ghost" type="submit">Delete</button>
+                      </form>
+                    <% } %>
                   </div>
                 </div>
               <% }) %>
@@ -64,6 +100,19 @@
         </details>
       </div>
     <% }) %>
+
+    <div class="card">
+      <div class="row" style="align-items:center">
+        <% if ((typeof page !== 'undefined') && page > 1) { %>
+          <a class="btn ghost" href="/feed?tab=<%= tab %>&page=<%= page - 1 %>">Prev</a>
+        <% } %>
+        <div class="spacer"></div>
+        <% if (Array.isArray(posts) && typeof PAGE_SIZE !== 'undefined' && posts.length === PAGE_SIZE) { %>
+          <a class="btn ghost" href="/feed?tab=<%= tab %>&page=<%= page + 1 %>">Next</a>
+        <% } %>
+      </div>
+    </div>
   </div>
 </body>
 </html>
+

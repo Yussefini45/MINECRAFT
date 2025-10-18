@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Search - Minecraft Social</title>
+  <link rel="stylesheet" href="/public/css/bedrock.css" />
+</head>
+<body class="bg">
+  <%- include('partials/nav') %>
+  <div class="container">
+    <div class="card">
+      <h2>Search results for "<%= q %>"</h2>
+      <% if (!users.length) { %>
+        <div class="muted">No users found.</div>
+      <% } %>
+      <div>
+        <% users.forEach(u => { %>
+          <div class="row" style="align-items:center; margin:8px 0;">
+            <img class="avatar" src="<%= u.avatar_path || '/public/css/steve.png' %>" />
+            <div style="margin-left:8px">
+              <div><a href="/u/<%= u.username %>"><%= u.display_name %></a></div>
+              <div class="muted">@<%= u.username %></div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

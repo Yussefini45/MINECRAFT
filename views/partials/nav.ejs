@@ -1,8 +1,13 @@
 <nav class="nav">
   <a class="brand" href="/feed">Minecraft Social</a>
   <div class="spacer"></div>
+  <form action="/search" method="GET" class="row" style="gap:8px">
+    <input name="q" placeholder="Search users" value="<%= typeof q !== 'undefined' ? q : '' %>" />
+    <button class="btn ghost" type="submit">Search</button>
+  </form>
   <% if (currentUserId) { %>
     <a class="btn ghost" href="/u/<%= currentUsername %>">Profile</a>
+    <a class="btn ghost" href="/settings/password">Password</a>
     <button class="btn ghost" type="button" id="themeToggle" aria-label="Toggle theme">Theme</button>
     <form method="POST" action="/logout">
       <button class="btn ghost" type="submit">Logout</button>

@@ -11,6 +11,9 @@
   <div class="container narrow">
     <div class="card">
       <h2>Edit Profile</h2>
+      <% if (typeof error !== 'undefined') { %>
+        <div class="alert"><%= error %></div>
+      <% } %>
       <form method="POST" action="/u/me/edit" enctype="multipart/form-data">
         <label>Display name</label>
         <input name="display_name" value="<%= me.display_name %>" required />

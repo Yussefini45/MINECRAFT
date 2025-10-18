@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Post - Minecraft Social</title>
+  <link rel="stylesheet" href="/public/css/bedrock.css" />
+</head>
+<body class="bg">
+  <%- include('partials/nav') %>
+  <div class="container">
+    <div class="card post">
+      <div class="post-header">
+        <img class="avatar" src="<%= post.avatar_path || '/public/css/steve.png' %>" alt="avatar" />
+        <div class="who">
+          <a href="/u/<%= post.username %>"><%= post.display_name %></a>
+          <div class="muted">@<%= post.username %></div>
+        </div>
+      </div>
+      <div class="content">
+        <%= post.content %>
+        <div class="muted" style="margin-top:6px"><%= post.created_at %></div>
+      </div>
+      <% if (post.image_path) { %>
+        <img class="post-img" src="<%= post.image_path %>" alt="post image" />
+      <% } %>
+      <div class="actions">
+        <form method="POST" action="/feed/<%= post.id %>/<%= post.liked_by_me ? 'unlike' : 'like' %>">
+          <button class="btn <%= post.liked_by_me ? 'active' : '' %>" type="submit">❤ <%= post.like_count %></button>
+        </form>
+        <% if (currentUsername === post.username) { %>
+          <form method="POST" action="/feed/<%= post.id %>?_method=DELETE">
+            <button class="btn ghost" type="submit">Delete</button>
+          </form>
+        <% } %>
+      </div>
+      <details class="comments" open>
+        <summary>Comments (<%= comments.length %>)</summary>
+        <form class="row" method="POST" action="/feed/<%= post.id %>/comment">
+          <input name="content" placeholder="Write a comment..." maxlength="300" />
+          <button class="btn" type="submit">Reply</button>
+        </form>
+        <div style="margin-top:8px">
+          <% comments.forEach(c => { %>
+            <div class="row" style="align-items:flex-start;margin:6px 0">
+              <img class="avatar" src="<%= c.avatar_path || '/public/css/steve.png' %>" />
+              <div>
+                <div style="font-weight:800"><a href="/u/<%= c.username %>">@<%= c.username %></a></div>
+                <div class="muted"><%= c.content %></div>
+              </div>
+              <% if (currentUsername === c.username) { %>
+                <div class="spacer"></div>
+                <form method="POST" action="/feed/<%= post.id %>/comment/<%= c.id %>/delete">
+                  <button class="btn ghost" type="submit">Delete</button>
+                </form>
+              <% } %>
+            </div>
+          <% }) %>
+        </div>
+      </details>
+    </div>
+  </div>
+</body>
+</html>

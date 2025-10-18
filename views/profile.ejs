@@ -24,14 +24,16 @@
           <% } %>
         </div>
         <div class="muted" style="margin-top:6px">
-          <strong><%= followerCount %></strong> followers · <strong><%= followingCount %></strong> following
+          <a href="/u/<%= user.username %>/followers"><strong><%= followerCount %></strong> followers</a>
+          ·
+          <a href="/u/<%= user.username %>/following"><strong><%= followingCount %></strong> following</a>
         </div>
       </div>
     </div>
 
     <% posts.forEach(p => { %>
       <div class="card post">
-        <div class="content"><%= p.content %></div>
+        <div class="content"><%- p.content %></div>
         <% if (p.image_path) { %>
           <img class="post-img" src="<%= p.image_path %>" alt="post image" />
         <% } %>
