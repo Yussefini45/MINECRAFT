@@ -2,6 +2,8 @@
   <a class="brand" href="/feed">Minecraft Social</a>
   <div class="spacer"></div>
   <% if (currentUserId) { %>
+    <a class="btn ghost" href="/u/<%= currentUsername %>">Profile</a>
+    <button class="btn ghost" type="button" id="themeToggle" aria-label="Toggle theme">Theme</button>
     <form method="POST" action="/logout">
       <button class="btn ghost" type="submit">Logout</button>
     </form>
@@ -9,3 +11,25 @@
     <a class="btn ghost" href="/login">Login</a>
   <% } %>
 </nav>
+<script>
+  (function(){
+    const root = document.documentElement;
+    const key = 'theme';
+    function apply(t){
+      if (t === 'light') {
+        root.classList.add('light');
+      } else {
+        root.classList.remove('light');
+      }
+    }
+    apply(localStorage.getItem(key));
+    const btn = document.getElementById('themeToggle');
+    if (btn) {
+      btn.addEventListener('click', function(){
+        const next = root.classList.contains('light') ? 'dark' : 'light';
+        localStorage.setItem(key, next);
+        apply(next);
+      });
+    }
+  })();
+</script>

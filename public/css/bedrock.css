@@ -11,6 +11,18 @@
   --border: #111a1c;
   --shadow: rgba(0,0,0,0.35);
 }
+:root.light{
+  --bg:#eef5f3;
+  --panel:#ffffff;
+  --panel-2:#f4f7f6;
+  --text:#0f1b19;
+  --muted:#456963;
+  --accent:#2aa860;
+  --accent-2:#1b8a50;
+  --danger:#b74747;
+  --border:#d7e2df;
+  --shadow: rgba(0,0,0,0.12);
+}
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Nunito, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif}
 .bg{background-image:linear-gradient(180deg, rgba(255,255,255,0.025), rgba(0,0,0,0.05)),

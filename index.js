@@ -28,6 +28,7 @@ app.use(
 
 app.use((req, res, next) => {
   res.locals.currentUserId = req.session.userId || null;
+  res.locals.currentUsername = req.session.username || null;
   next();
 });
 

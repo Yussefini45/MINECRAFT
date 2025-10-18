@@ -8,6 +8,7 @@ const { all, get, run } = require('../lib/db');
 const router = express.Router();
 
 const upload = multer({ dest: path.resolve(__dirname, '../uploads') });
+const fs = require('fs');
 
 function requireAuth(req, res, next) {
   if (!req.session.userId) return res.redirect('/login');
@@ -26,7 +27,27 @@ router.get('/', requireAuth, async (req, res) => {
      LIMIT 50`,
     [req.session.userId]
   );
-  res.render('feed', { posts });
+  // Fetch comments for these posts
+  const postIds = posts.map(p => p.id);
+  let commentsByPostId = {};
+  if (postIds.length) {
+    const placeholders = postIds.map(() => '?').join(',');
+    const comments = await all(
+      `SELECT c.*, u.username, u.avatar_path
+       FROM comments c
+       JOIN users u ON u.id = c.user_id
+       WHERE c.post_id IN (${placeholders})
+       ORDER BY c.created_at ASC`,
+      postIds
+    );
+    commentsByPostId = comments.reduce((acc, c) => {
+      if (!acc[c.post_id]) acc[c.post_id] = [];
+      acc[c.post_id].push(c);
+      return acc;
+    }, {});
+  }
+  const enriched = posts.map(p => ({ ...p, comments: commentsByPostId[p.id] || [] }));
+  res.render('feed', { posts: enriched });
 });
 
 router.post('/create', requireAuth, upload.single('image'), async (req, res) => {
@@ -96,3 +117,23 @@ router.post('/:id/comment', requireAuth, async (req, res) => {
 });
 
 module.exports = router;
+
+// Delete a post (owner only)
+router.delete('/:id', requireAuth, async (req, res) => {
+  try {
+    const post_id = req.params.id;
+    const post = await get('SELECT * FROM posts WHERE id = ?', [post_id]);
+    if (!post) return res.status(404).send('Not found');
+    if (post.user_id !== req.session.userId) return res.status(403).send('Forbidden');
+    // remove image if exists
+    if (post.image_path) {
+      const imgPath = path.resolve(__dirname, `..${post.image_path}`);
+      try { fs.unlinkSync(imgPath); } catch (_) {}
+    }
+    await run('DELETE FROM posts WHERE id = ?', [post_id]);
+    res.redirect('/feed');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error deleting post');
+  }
+});

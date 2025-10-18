@@ -48,6 +48,7 @@ router.post('/signup', upload.single('avatar'), async (req, res) => {
     );
 
     req.session.userId = id;
+    req.session.username = username;
     res.redirect('/feed');
   } catch (err) {
     console.error(err);
@@ -63,6 +64,7 @@ router.post('/login', async (req, res) => {
     const ok = await bcrypt.compare(password, user.password_hash);
     if (!ok) return res.status(401).render('auth_login', { error: 'Invalid credentials' });
     req.session.userId = user.id;
+    req.session.username = user.username;
     res.redirect('/feed');
   } catch (err) {
     console.error(err);
