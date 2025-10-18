@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bookmarks - Minecraft Social</title>
+  <link rel="stylesheet" href="/public/css/bedrock.css" />
+</head>
+<body class="bg">
+  <%- include('partials/nav') %>
+  <div class="container">
+    <div class="card">
+      <h2>Bookmarks</h2>
+      <% if (!posts.length) { %>
+        <div class="muted">No bookmarks yet.</div>
+      <% } %>
+      <% posts.forEach(p => { %>
+        <div class="card" style="margin:8px 0">
+          <div style="font-weight:800"><a href="/u/<%= p.username %>"><%= p.display_name %></a> <span class="muted">@<%= p.username %></span></div>
+          <div><%- linkify(p.content) %></div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</body>
+</html>

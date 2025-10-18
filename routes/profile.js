@@ -1,5 +1,8 @@
 const express = require('express');
 const { all, get, run } = require('../lib/db');
+const path = require('path');
+const multer = require('multer');
+const social = require('../lib/social');
 const dayjs = require('dayjs');
 
 const router = express.Router();
@@ -46,6 +49,11 @@ router.post('/:username/follow', requireAuth, async (req, res) => {
     target.id,
     dayjs().toISOString(),
   ]);
+  // notify follow
+  if (target.id !== req.session.userId) {
+    const { createNotification } = require('../lib/social');
+    await createNotification({ userId: target.id, actorId: req.session.userId, type: 'follow' });
+  }
   res.redirect(`/u/${req.params.username}`);
 });
 
@@ -61,9 +69,24 @@ router.get('/me/edit', requireAuth, async (req, res) => {
   res.render('profile_edit', { me });
 });
 
-router.post('/me/edit', requireAuth, async (req, res) => {
+const upload = multer({ dest: path.resolve(__dirname, '../uploads') });
+
+router.post('/me/edit', requireAuth, upload.single('avatar'), async (req, res) => {
   const { display_name, bio } = req.body;
-  await run('UPDATE users SET display_name = ?, bio = ? WHERE id = ?', [display_name, bio, req.session.userId]);
+  let avatarPath = '';
+  if (req.file) {
+    avatarPath = social.saveUploadedAvatar(req.file, req.session.userId);
+  }
+  if (avatarPath) {
+    await run('UPDATE users SET display_name = ?, bio = ?, avatar_path = ? WHERE id = ?', [
+      display_name,
+      bio,
+      avatarPath,
+      req.session.userId,
+    ]);
+  } else {
+    await run('UPDATE users SET display_name = ?, bio = ? WHERE id = ?', [display_name, bio, req.session.userId]);
+  }
   res.redirect(`/u/${req.session.username || ''}`);
 });
 

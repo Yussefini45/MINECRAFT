@@ -4,6 +4,7 @@ const path = require('path');
 const dayjs = require('dayjs');
 const { nanoid } = require('nanoid');
 const { all, get, run } = require('../lib/db');
+const social = require('../lib/social');
 
 const router = express.Router();
 
@@ -16,17 +17,8 @@ function requireAuth(req, res, next) {
 }
 
 router.get('/', requireAuth, async (req, res) => {
-  const posts = await all(
-    `SELECT p.*, u.username, u.display_name, u.avatar_path,
-            (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) as like_count,
-            (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) as comment_count,
-            EXISTS(SELECT 1 FROM likes l2 WHERE l2.post_id = p.id AND l2.user_id = ?) as liked_by_me
-     FROM posts p
-     JOIN users u ON u.id = p.user_id
-     ORDER BY p.created_at DESC
-     LIMIT 50`,
-    [req.session.userId]
-  );
+  const followingOnly = req.query.tab === 'following';
+  const posts = await social.buildFeed({ viewerId: req.session.userId, followingOnly, limit: 50 });
   // Fetch comments for these posts
   const postIds = posts.map(p => p.id);
   let commentsByPostId = {};
@@ -47,7 +39,7 @@ router.get('/', requireAuth, async (req, res) => {
     }, {});
   }
   const enriched = posts.map(p => ({ ...p, comments: commentsByPostId[p.id] || [] }));
-  res.render('feed', { posts: enriched });
+  res.render('feed', { posts: enriched, tab: followingOnly ? 'following' : 'for-you' });
 });
 
 router.post('/create', requireAuth, upload.single('image'), async (req, res) => {
@@ -69,6 +61,8 @@ router.post('/create', requireAuth, upload.single('image'), async (req, res) => 
       'INSERT INTO posts (id, user_id, content, image_path, created_at) VALUES (?, ?, ?, ?, ?)',
       [id, user_id, content, image_path, created_at]
     );
+    // notifications for mentions
+    await social.notifyMentions({ text: content, actorId: user_id, postId: id });
     res.redirect('/feed');
   } catch (err) {
     console.error(err);
@@ -80,8 +74,13 @@ router.post('/:id/like', requireAuth, async (req, res) => {
   try {
     const post_id = req.params.id;
     const user_id = req.session.userId;
-    const created_at = dayjs().toISOString();
-    await run('INSERT OR IGNORE INTO likes (user_id, post_id, created_at) VALUES (?, ?, ?)', [user_id, post_id, created_at]);
+    const nowLiked = await social.toggleLike(user_id, post_id);
+    if (nowLiked) {
+      const owner = await get('SELECT user_id FROM posts WHERE id = ?', [post_id]);
+      if (owner && owner.user_id !== user_id) {
+        await social.createNotification({ userId: owner.user_id, actorId: user_id, type: 'like', postId: post_id });
+      }
+    }
     res.redirect('/feed');
   } catch (err) {
     console.error(err);
@@ -109,6 +108,12 @@ router.post('/:id/comment', requireAuth, async (req, res) => {
     const content = (req.body.content || '').slice(0, 300);
     const created_at = dayjs().toISOString();
     await run('INSERT INTO comments (id, post_id, user_id, content, created_at) VALUES (?, ?, ?, ?, ?)', [id, post_id, user_id, content, created_at]);
+    // notify post owner and mentions
+    const post = await get('SELECT user_id FROM posts WHERE id = ?', [post_id]);
+    if (post && post.user_id !== user_id) {
+      await social.createNotification({ userId: post.user_id, actorId: user_id, type: 'comment', postId: post_id });
+    }
+    await social.notifyMentions({ text: content, actorId: user_id, postId, commentId: id });
     res.redirect('/feed');
   } catch (err) {
     console.error(err);
@@ -136,4 +141,28 @@ router.delete('/:id', requireAuth, async (req, res) => {
     console.error(err);
     res.status(500).send('Error deleting post');
   }
+});
+
+// Edit post - form
+router.get('/:id/edit', requireAuth, async (req, res) => {
+  const post = await get('SELECT * FROM posts WHERE id = ?', [req.params.id]);
+  if (!post || post.user_id !== req.session.userId) return res.status(403).send('Forbidden');
+  res.render('post_edit', { post });
+});
+
+// Update post
+router.put('/:id/edit', requireAuth, async (req, res) => {
+  const post = await get('SELECT * FROM posts WHERE id = ?', [req.params.id]);
+  if (!post || post.user_id !== req.session.userId) return res.status(403).send('Forbidden');
+  const content = (req.body.content || '').slice(0, 500);
+  await run('UPDATE posts SET content = ? WHERE id = ?', [content, req.params.id]);
+  res.redirect('/feed');
+});
+
+// Delete a comment by owner
+router.delete('/comment/:id', requireAuth, async (req, res) => {
+  const comment = await get('SELECT * FROM comments WHERE id = ?', [req.params.id]);
+  if (!comment || comment.user_id !== req.session.userId) return res.status(403).send('Forbidden');
+  await run('DELETE FROM comments WHERE id = ?', [req.params.id]);
+  res.redirect('back');
 });

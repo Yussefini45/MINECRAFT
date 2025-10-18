@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Explore - Minecraft Social</title>
+  <link rel="stylesheet" href="/public/css/bedrock.css" />
+</head>
+<body class="bg">
+  <%- include('partials/nav') %>
+  <div class="container">
+    <div class="card">
+      <h2>Trending</h2>
+      <div class="row" style="flex-wrap:wrap;gap:6px">
+        <% tags.forEach(t => { %>
+          <a class="btn ghost" href="/search?q=%23<%= t.tag %>">#<%= t.tag %> (<%= t.count %>)</a>
+        <% }) %>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Latest posts</h2>
+      <% posts.forEach(p => { %>
+        <div class="card" style="margin:8px 0">
+          <div style="font-weight:800"><a href="/u/<%= p.username %>"><%= p.display_name %></a> <span class="muted">@<%= p.username %></span></div>
+          <div><%- linkify(p.content) %></div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</body>
+</html>

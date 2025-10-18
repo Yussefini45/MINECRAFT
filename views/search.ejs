@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Search - Minecraft Social</title>
+  <link rel="stylesheet" href="/public/css/bedrock.css" />
+</head>
+<body class="bg">
+  <%- include('partials/nav') %>
+  <div class="container">
+    <div class="card">
+      <form method="GET" action="/search">
+        <input name="q" placeholder="Search posts or users" value="<%= q %>" />
+        <button class="btn" type="submit">Search</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Users</h2>
+      <% users.forEach(u => { %>
+        <div class="row" style="margin:6px 0">
+          <img class="avatar" src="<%= u.avatar_path %>" />
+          <a href="/u/<%= u.username %>"><%= u.display_name %> <span class="muted">@<%= u.username %></span></a>
+        </div>
+      <% }) %>
+    </div>
+
+    <div class="card">
+      <h2>Posts</h2>
+      <% posts.forEach(p => { %>
+        <div class="card" style="margin:8px 0">
+          <div><%- linkify(p.content) %></div>
+          <div class="muted">by <a href="/u/<%= p.username %>">@<%= p.username %></a></div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</body>
+</html>
