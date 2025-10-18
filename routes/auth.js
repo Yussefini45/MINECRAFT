@@ -5,6 +5,7 @@ const dayjs = require('dayjs');
 const multer = require('multer');
 const path = require('path');
 const { run, get } = require('../lib/db');
+const social = require('../lib/social');
 
 const router = express.Router();
 
@@ -32,15 +33,7 @@ router.post('/signup', upload.single('avatar'), async (req, res) => {
     const id = nanoid();
     const password_hash = await bcrypt.hash(password, 10);
     const created_at = dayjs().toISOString();
-    const avatar_path = req.file ? `/public/img/avatars/${id}.png` : '';
-
-    if (req.file) {
-      // Save uploaded avatar into public/img/avatars
-      const fs = require('fs');
-      const destDir = path.resolve(__dirname, '../public/img/avatars');
-      if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
-      fs.renameSync(req.file.path, path.join(destDir, `${id}.png`));
-    }
+    const avatar_path = req.file ? social.saveUploadedAvatar(req.file, id) : social.ensureDefaultAvatar('');
 
     await run(
       'INSERT INTO users (id, username, display_name, bio, avatar_path, password_hash, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
@@ -63,6 +56,12 @@ router.post('/login', async (req, res) => {
     if (!user) return res.status(401).render('auth_login', { error: 'Invalid credentials' });
     const ok = await bcrypt.compare(password, user.password_hash);
     if (!ok) return res.status(401).render('auth_login', { error: 'Invalid credentials' });
+    // ensure default avatar if user signed up before default existed
+    if (!user.avatar_path) {
+      const defaultPath = social.ensureDefaultAvatar('');
+      await run('UPDATE users SET avatar_path = ? WHERE id = ?', [defaultPath, user.id]);
+      user.avatar_path = defaultPath;
+    }
     req.session.userId = user.id;
     req.session.username = user.username;
     res.redirect('/feed');

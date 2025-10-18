@@ -2,6 +2,9 @@
   <a class="brand" href="/feed">Minecraft Social</a>
   <div class="spacer"></div>
   <% if (currentUserId) { %>
+    <a class="btn ghost" href="/explore">Explore</a>
+    <a class="btn ghost" href="/bookmarks">Bookmarks</a>
+    <a class="btn ghost" href="/notifications">Notifications (<%= unreadCount %>)</a>
     <a class="btn ghost" href="/u/<%= currentUsername %>">Profile</a>
     <button class="btn ghost" type="button" id="themeToggle" aria-label="Toggle theme">Theme</button>
     <form method="POST" action="/logout">

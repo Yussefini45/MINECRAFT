@@ -10,6 +10,10 @@
   <%- include('partials/nav') %>
   <div class="container">
     <div class="card">
+      <div class="row" style="margin-bottom:8px">
+        <a class="btn <%= tab === 'for-you' ? '' : 'ghost' %>" href="/feed">For You</a>
+        <a class="btn <%= tab === 'following' ? '' : 'ghost' %>" href="/feed?tab=following">Following</a>
+      </div>
       <form class="composer" method="POST" action="/feed/create" enctype="multipart/form-data">
         <textarea name="content" placeholder="Share your adventure..." maxlength="500"></textarea>
         <div class="row">
@@ -28,13 +32,19 @@
             <div class="muted">@<%= p.username %></div>
           </div>
         </div>
-        <div class="content"><%= p.content %></div>
+        <div class="content"><%- linkify(p.content) %></div>
         <% if (p.image_path) { %>
           <img class="post-img" src="<%= p.image_path %>" alt="post image" />
         <% } %>
         <div class="actions">
           <form method="POST" action="/feed/<%= p.id %>/<%= p.liked_by_me ? 'unlike' : 'like' %>">
             <button class="btn <%= p.liked_by_me ? 'active' : '' %>" type="submit">❤ <%= p.like_count %></button>
+          </form>
+          <form method="POST" action="/bookmarks/<%= p.id %>/toggle">
+            <button class="btn ghost" type="submit">🔖</button>
+          </form>
+          <form method="POST" action="/repost/<%= p.id %>">
+            <button class="btn ghost" type="submit">🔁</button>
           </form>
           <% if (currentUsername === p.username) { %>
             <form method="POST" action="/feed/<%= p.id %>?_method=DELETE">
@@ -55,7 +65,12 @@
                   <img class="avatar" src="<%= c.avatar_path || '/public/css/steve.png' %>" />
                   <div>
                     <div style="font-weight:800"><a href="/u/<%= c.username %>">@<%= c.username %></a></div>
-                    <div class="muted"><%= c.content %></div>
+                    <div class="muted"><%- linkify(c.content) %></div>
+                    <% if (currentUserId && c.user_id === currentUserId) { %>
+                      <form method="POST" action="/feed/comment/<%= c.id %>?_method=DELETE">
+                        <button class="btn ghost" type="submit">Delete</button>
+                      </form>
+                    <% } %>
                   </div>
                 </div>
               <% }) %>

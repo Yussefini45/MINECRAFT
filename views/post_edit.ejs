@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Edit Post - Minecraft Social</title>
+  <link rel="stylesheet" href="/public/css/bedrock.css" />
+</head>
+<body class="bg">
+  <%- include('partials/nav') %>
+  <div class="container narrow">
+    <div class="card">
+      <h2>Edit Post</h2>
+      <form method="POST" action="/feed/<%= post.id %>/edit?_method=PUT">
+        <textarea name="content" maxlength="500"><%= post.content %></textarea>
+        <button class="btn" type="submit">Save</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Notifications - Minecraft Social</title>
+  <link rel="stylesheet" href="/public/css/bedrock.css" />
+</head>
+<body class="bg">
+  <%- include('partials/nav') %>
+  <div class="container">
+    <div class="card">
+      <h2>Notifications</h2>
+      <% if (!items.length) { %>
+        <div class="muted">You're all caught up.</div>
+      <% } %>
+      <% items.forEach(n => { %>
+        <div class="row" style="margin:8px 0;align-items:flex-start">
+          <img class="avatar" src="<%= n.actor_avatar %>" />
+          <div>
+            <div><a href="/u/<%= n.actor_username %>"><%= n.actor_display_name %></a> <span class="muted">@<%= n.actor_username %></span></div>
+            <div class="muted">
+              <% if (n.type === 'like') { %> liked your post <% } %>
+              <% if (n.type === 'comment') { %> commented on your post <% } %>
+              <% if (n.type === 'follow') { %> started following you <% } %>
+              <% if (n.type === 'mention') { %> mentioned you <% } %>
+              <% if (n.type === 'repost') { %> reposted your post <% } %>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</body>
+</html>
