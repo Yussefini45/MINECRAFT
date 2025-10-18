@@ -36,6 +36,11 @@
           <form method="POST" action="/feed/<%= p.id %>/<%= p.liked_by_me ? 'unlike' : 'like' %>">
             <button class="btn <%= p.liked_by_me ? 'active' : '' %>" type="submit">❤ <%= p.like_count %></button>
           </form>
+          <% if (currentUsername === p.username) { %>
+            <form method="POST" action="/feed/<%= p.id %>?_method=DELETE">
+              <button class="btn ghost" type="submit">Delete</button>
+            </form>
+          <% } %>
         </div>
         <details class="comments">
           <summary>Comments (<%= p.comment_count %>)</summary>
@@ -43,6 +48,19 @@
             <input name="content" placeholder="Write a comment..." maxlength="300" />
             <button class="btn" type="submit">Reply</button>
           </form>
+          <div style="margin-top:8px">
+            <% if (p.comments && p.comments.length) { %>
+              <% p.comments.forEach(c => { %>
+                <div class="row" style="align-items:flex-start;margin:6px 0">
+                  <img class="avatar" src="<%= c.avatar_path || '/public/css/steve.png' %>" />
+                  <div>
+                    <div style="font-weight:800"><a href="/u/<%= c.username %>">@<%= c.username %></a></div>
+                    <div class="muted"><%= c.content %></div>
+                  </div>
+                </div>
+              <% }) %>
+            <% } %>
+          </div>
         </details>
       </div>
     <% }) %>

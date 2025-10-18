@@ -31,7 +31,10 @@ router.get('/:username', async (req, res) => {
     isFollowing = !!f;
   }
 
-  res.render('profile', { user, posts, isFollowing });
+  // follower/following counts
+  const followerCountRow = await get('SELECT COUNT(*) as cnt FROM follows WHERE following_id = ?', [user.id]);
+  const followingCountRow = await get('SELECT COUNT(*) as cnt FROM follows WHERE follower_id = ?', [user.id]);
+  res.render('profile', { user, posts, isFollowing, followerCount: followerCountRow?.cnt || 0, followingCount: followingCountRow?.cnt || 0 });
 });
 
 router.post('/:username/follow', requireAuth, async (req, res) => {

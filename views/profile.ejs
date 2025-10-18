@@ -15,9 +15,17 @@
         <h2><%= user.display_name %></h2>
         <div class="muted">@<%= user.username %></div>
         <p><%= user.bio %></p>
-        <form method="POST" action="/u/<%= user.username %>/<%= isFollowing ? 'unfollow' : 'follow' %>">
-          <button class="btn" type="submit"><%= isFollowing ? 'Unfollow' : 'Follow' %></button>
-        </form>
+        <div class="row">
+          <form method="POST" action="/u/<%= user.username %>/<%= isFollowing ? 'unfollow' : 'follow' %>">
+            <button class="btn" type="submit"><%= isFollowing ? 'Unfollow' : 'Follow' %></button>
+          </form>
+          <% if (currentUsername === user.username) { %>
+            <a class="btn ghost" href="/u/me/edit">Edit profile</a>
+          <% } %>
+        </div>
+        <div class="muted" style="margin-top:6px">
+          <strong><%= followerCount %></strong> followers · <strong><%= followingCount %></strong> following
+        </div>
       </div>
     </div>
 
